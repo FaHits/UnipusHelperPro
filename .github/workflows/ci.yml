@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: 环境信息
+        run: |
+          java -version
+          mvn -v
+
+      - name: 构建（不做自动化测试，skipTests 为既定选择）
+        run: mvn -B -DskipTests package
+
+      - name: 产物信息
+        run: |
+          ls -l target/*.jar
+          echo "target/lib 文件数: $(ls target/lib | wc -l)"
+          du -sb target/lib
+
+      - name: 基线验证（复用上一步构建产物）
+        run: bash scripts/verify-baseline.sh --no-build
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: unipus-jar
+          path: |
+            target/unipusHelperPro-*.jar
+            target/lib/**

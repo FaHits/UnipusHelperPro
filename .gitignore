@@ -40,3 +40,7 @@ build/
 
 ### Logs ###
 logs
+*.log
+
+### 本地交接记录（只在本地保留，不入库） ###
+Documentation/Handoffs/

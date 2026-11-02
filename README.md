@@ -1,4 +1,9 @@
 # UnipusHelperPro
+
+> **本仓库是 fork。** 本仓库（[FaHits/UnipusHelperPro](https://github.com/FaHits/UnipusHelperPro)）是上游 [Duster-Cule/UnipusHelperPro](https://github.com/Duster-Cule/UnipusHelperPro) 的 fork，上游已归档，本线的开发、构建、发布都在本仓库进行。上游的「Public Archived」状态只代表上游仓库，不代表本 fork。
+>
+> 本 fork 目前只做了工程底座（CI、版本规范、验证脚本、交接文档），未改动任何业务代码，功能与上游 1.0.3 一致。构建方式见 [AGENTS.md](AGENTS.md)，验证方式见 `bash scripts/verify-baseline.sh`。
+
 U校园AI版自动答题工具（新视野大学英语）
 
 ## Public Archived
