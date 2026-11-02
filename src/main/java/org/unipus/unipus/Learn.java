@@ -332,6 +332,12 @@ public class Learn {
             }
         }
 
+        //按题型模拟真人作答耗时，避免秒提交触发平台提交冷却
+        long thinkingMs = TimingPolicy.nextDelayMs(questionTypes.getFirst());
+        logger.info("Human-like pacing before submitting task {}: {} ms", taskId, thinkingMs);
+        task.waitForCooldown(thinkingMs, TimingPolicy.describe(thinkingMs), "提交答案");
+        if (!checkpoint(task)) return false;
+
         //提交答案
         String submitBody = WebUtils.createSubmitBody(ids, answers, taskId, courseInstanceId, task.getUser().getOpenId(), questionTypes);
         boolean submitSuccess = false;
