@@ -1,6 +1,6 @@
 # AI 开发协作规则
 
-本文件适用于整个 `unipus-src` 仓库（`FaHits/UnipusHelperPro`，上游 `Duster-Cule/UnipusHelperPro` 的 fork）。任何 AI 在本仓库开始工作前，必须先读本文件，并按「强制启动流程」确认状态。
+本文件适用于整个仓库（本地路径 `E:\Ai_Agent\Unipus`；`FaHits/UnipusHelperPro`，上游 `Duster-Cule/UnipusHelperPro` 的 fork）。任何 AI 在本仓库开始工作前，必须先读本文件，并按「强制启动流程」确认状态。
 
 聊天记录不是长期事实来源。后续窗口只以仓库内文档、Git 状态和实际构建结果为准。
 

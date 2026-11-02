@@ -6,14 +6,14 @@
 
 | 项 | 值 |
 | --- | --- |
-| 分支 | `feat/engineering-baseline`（从 `main` 切出，`main` 未改动） |
+| 分支 | `feat/human-pacing`（从 `feat/engineering-baseline` 切出，`main` 未改动） |
 | 起点 HEAD | `3042bd40b46bcccf3db11a684420a6a79a4edbaf`（上游 Duster-Cule/UnipusHelperPro，2026-10-26「Update README.md」） |
-| 当前 HEAD | `5e8a19fde93bbe4d9adc533028067ac27cd19c28`（已是远端分支最新内容提交；本文件所在提交只更新文档本身，HEAD 以 `git rev-parse HEAD` 为准） |
+| 当前 HEAD | 以 `git rev-parse HEAD` 为准；上一个已推送基线是 `89c073189b1b69ecf4cb3a625554cfe96a83fe90` |
 | 版本线 | `1.0.3`（`pom.xml:9`，本次未改） |
 | 最近一次 CI run | [#41376445981](https://github.com/FaHits/UnipusHelperPro/actions/runs/41376445981)：`CI` / job `build` = **success**，31 秒（2026-11-02T02:12:18Z → 02:12:49Z），head `5e8a19f` |
 | 构建产物 | jar 本地 327081 字节 / CI 327068 字节；`target/lib` 16 个文件 / 9522131 字节。artifact `unipus-jar` id `13111810515`，9037310 字节，sha256 `b241c68a7f1f1e8c1eedc7ce68cc7d1d06dc40a37f90790bae10a0a14faf4b78` |
-| 任务状态 | Task 0：工程底座 = implemented（**未做任何运行时验证**） |
-| 下一步 | 等规划方下一条需求。不要自行开始功能开发、不推 `main`、不打 tag、不发 release。 |
+| 任务状态 | Task 0：工程底座 = implemented；Task 1：启动脚本 = completed（用户实测通过）；Task 2：人类作答节奏 = implemented（**未做运行时验证**） |
+| 下一步 | 学习时长无法由提交接口写入（见「学习时长实测结论」），是否改用「官方播放器在线」路线由规划方决定；不要自行推 `main`、打 tag、发 release。 |
 
 ## 任务表
 
@@ -25,6 +25,8 @@
 | Task | 状态 | 证据 |
 | --- | --- | --- |
 | Task 0：工程底座 | implemented | `AGENTS.md`、`VERSIONING.md`、`.github/workflows/ci.yml`、`scripts/verify-baseline.sh`（本地退出码 0）、`Documentation/ImplementationStatus.md`；CI run [#41376445981](https://github.com/FaHits/UnipusHelperPro/actions/runs/41376445981) success，artifact `unipus-jar` id `13111810515`（9037310 字节，含 jar 与 `lib/`）。**未做任何运行时验证**。 |
+| Task 1：启动脚本 | completed | 新增 `run.bat`（111 行、纯 ASCII、CRLF）与 `.gitattributes`（`*.bat text eol=crlf`）。根因：上游 `run.bat` 是 UTF-8 无 BOM + LF，中文 cmd 按 GBK 读导致行边界塌陷。用户 2026-11-02 在本机双击实测：「现在已经修好了，我实际测试是可以用的」。 |
+| Task 2：人类作答节奏 | implemented | 新增 `src/main/java/org/unipus/unipus/TimingPolicy.java`，`Learn.java:340` 在提交前按题型随机等待（`task.waitForCooldown` 复用，可暂停/可中断）。`mvn -B -DskipTests package` 退出码 0。**未做运行时验证**（没有在 GUI 里跑完一个单元）。 |
 
 ## CI 记录
 
@@ -40,17 +42,29 @@
 - `Documentation/Handoffs/` 的规则：该目录只在本机保留，已在 `.gitignore` 末尾追加忽略规则，**不入库、不在 GitHub 上显示**。里面每次交接写一份 `YYYY-MM-DD-<topic>.md`，记录现状、约定和下次从哪里继续；内容可以比本文件随意，但不得写入账号、密码、Cookie、Token、真实课程数据。
 - 发布规则见 `VERSIONING.md`：标签 `v<version>`、分发 zip 名 `UnipusHelperPro-v<version>.zip`。本次不发布。
 
+## 学习时长实测结论（2026-11-02，真实账号，只读/可选单元）
+
+上游 README 说「提交请求不会记录学习时长」，实测把它拆成了三条可复核的子结论：
+
+1. **提交接口不写时长，与快慢无关。** 在可选单元 Unit 5（`required=false`）上连续做对照：立即提交 → 单元 `duration` 保持 0；先等 120 秒再提交 → 仍然是 0。判定依据是 `course/api/v2/course_progress/{instance}/{unit}/{openId}/default` 的 `rt.duration_time` 与 `rt.leafs[*].duration`，提交前后都是 0，只有 `state.pass` 从 0 变 1（任务确实被判定完成）。
+2. **在提交 body 里塞 `duration` 无效。** 在 payload 末尾追加 `"duration":30` 提交，返回 `code=0` 表示接受请求，但叶子节点 `duration` 仍为 0。
+3. **找不到可写的时长端点。** 对 `course_progress/.../default`（JSON 与 form 两种 body）、`.../duration`、课程级 `course_progress/{instance}/{openId}/default`、`course/api/v3/newExploration/progress` 逐个 POST，全部 `http=404`。说明时长由官方播放器（`ucontent.unipus.cn` 内的 WebView，`flag` 里的 `sdk` 位）自己上报，答案提交链路里没有这个入口。
+
+因此：**「按人类节奏等待」能解决秒提交与提交冷却，但不能增加学习时长**。要让时长真实增长，只能让官方播放器保持打开（类似浏览器油猴脚本 `uxudjs/UnipusAIAutoPlayer` 的做法），那是另一条实现路线，需要规划方决策。
+
+参考基线：该账号「新视野大学英语（第四版）读写教程1」的单元时长现状为 Unit 1 = 2574 秒（本人真实学习）、Unit 2 = 6 秒、Unit 3 = 0 秒、Unit 4 = 7 秒，总计 2587 秒——正好对上「机器人做完但几乎没有时长」的现象。
+
 ## 未验证项
 
-本任务只建立了工程底座，未运行过程序，以下全部未验证：
+以下是截至 Task 2 仍未验证的项（Task 1 的启动脚本由用户实测通过，已为 `completed`）：
 
-1. 程序能否在本机 Windows 上启动、登录、答题、提交——一条都没有实际点过。构建成功不等于程序能跑。
-2. GUI 在 JDK 25 + flatlaf 3.6.1 下的渲染与交互（字体、缩放、主题）未验证。
-3. `target/unipusHelperPro-1.0.3.jar` + `target/lib/` 这套目录结构在真实机器上用 `java -jar` 启动是否正常（`Class-Path` 前缀为 `lib/`，需要与 lib 目录同级运行）。
-4. 上游 README 提到但不存在的 `run.bat` / `run.sh` 启动脚本没有补，也没有验证任何启动方式。
+1. 程序能启动（本机 PID/标题/日志已确认），但**登录、拉课程、答题、提交这一整条主链路没有在 GUI 里完整走过一遍**；Task 2 的节奏等待只在 API 层验证，没有观察过界面上的「等待 → 提交」过程。
+2. GUI 在 JDK 25 + flatlaf 3.6.1 下的渲染与交互（字体、缩放、主题）只截过空态主窗口，其他面板、弹窗、F6/F12 调试窗口未点过。
+3. `target/unipusHelperPro-1.0.3.jar` + `target/lib/` 这套结构在本机用 `java -jar` 与 `run.bat` 都能启动（用户实测），但分发给他人后的路径/空格/JDK 组合未验证。
+4. `run.sh` 仍未补（Linux/macOS 启动脚本），`.gitattributes` 只保证了 `*.bat` 的换行。
 5. CI 只在 `ubuntu-latest` 上验证编译与打包，Windows 行为未在 CI 覆盖。
-6. 网络相关功能（U校园接口、答案拉取、提交请求）完全未验证；上游协议可能早已失效。
-7. 构建产物不可复现：同一个提交在本机 JDK 25.0.4 上打出的 jar 是 327081 字节，CI 的 JDK 25.0.5 上是 327068 字节（差 13 字节）。本任务不声明可复现构建，也不做字节级对比。
+6. 网络相关功能：登录、课程列表、单元进度、答案拉取、提交都在真实账号上跑通过（见「学习时长实测结论」），但**多课程批量、断点续跑、异常重试**未验证。
+7. 构建产物不可复现：同一个提交在本机 JDK 25.0.4 上打出的 jar 是 327081 字节，CI 的 JDK 25.0.5 上是 327068 字节（差 13 字节）。不声明可复现构建，也不做字节级对比。
 
 ## 发现的问题（只记录，未修改）
 
