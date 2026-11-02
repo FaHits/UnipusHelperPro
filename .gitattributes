@@ -1,0 +1,7 @@
+# Batch files must keep CRLF line endings on every platform.
+# Upstream v1.0.3 shipped run.bat as UTF-8 + LF, which cmd.exe on a
+# Chinese Windows mis-parses into "xxx is not recognized as a command".
+*.bat text eol=crlf
+
+# Shell scripts must stay LF.
+*.sh text eol=lf
