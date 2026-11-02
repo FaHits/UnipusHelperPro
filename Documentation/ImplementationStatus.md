@@ -8,10 +8,10 @@
 | --- | --- |
 | 分支 | `feat/engineering-baseline`（从 `main` 切出，`main` 未改动） |
 | 起点 HEAD | `3042bd40b46bcccf3db11a684420a6a79a4edbaf`（上游 Duster-Cule/UnipusHelperPro，2026-10-26「Update README.md」） |
-| 当前 HEAD | `HEAD_SHA_PENDING` |
+| 当前 HEAD | `5e8a19fde93bbe4d9adc533028067ac27cd19c28`（已是远端分支最新内容提交；本文件所在提交只更新文档本身，HEAD 以 `git rev-parse HEAD` 为准） |
 | 版本线 | `1.0.3`（`pom.xml:9`，本次未改） |
-| 最近一次 CI run | `RUN_ID_PENDING`（workflow `.github/workflows/ci.yml`，job `build`） |
-| 构建产物 | `unipusHelperPro-1.0.3.jar` 327081 字节；`target/lib` 16 个文件 / 9522131 字节（本地 JDK 25.0.4 实测，CI artifact `unipus-jar` id `ARTIFACT_ID_PENDING`） |
+| 最近一次 CI run | [#41376445981](https://github.com/FaHits/UnipusHelperPro/actions/runs/41376445981)：`CI` / job `build` = **success**，31 秒（2026-11-02T02:12:18Z → 02:12:49Z），head `5e8a19f` |
+| 构建产物 | jar 本地 327081 字节 / CI 327068 字节；`target/lib` 16 个文件 / 9522131 字节。artifact `unipus-jar` id `13111810515`，9037310 字节，sha256 `b241c68a7f1f1e8c1eedc7ce68cc7d1d06dc40a37f90790bae10a0a14faf4b78` |
 | 任务状态 | Task 0：工程底座 = implemented（**未做任何运行时验证**） |
 | 下一步 | 等规划方下一条需求。不要自行开始功能开发、不推 `main`、不打 tag、不发 release。 |
 
@@ -24,7 +24,14 @@
 
 | Task | 状态 | 证据 |
 | --- | --- | --- |
-| Task 0：工程底座 | implemented | 本文件 + `AGENTS.md` + `VERSIONING.md` + `.github/workflows/ci.yml` + `scripts/verify-baseline.sh`（退出码 0）+ CI run `RUN_ID_PENDING` 的 artifact `unipus-jar`（id `ARTIFACT_ID_PENDING`，1200306 字节，含 jar 与 lib/）。未做任何运行时验证。 |
+| Task 0：工程底座 | implemented | `AGENTS.md`、`VERSIONING.md`、`.github/workflows/ci.yml`、`scripts/verify-baseline.sh`（本地退出码 0）、`Documentation/ImplementationStatus.md`；CI run [#41376445981](https://github.com/FaHits/UnipusHelperPro/actions/runs/41376445981) success，artifact `unipus-jar` id `13111810515`（9037310 字节，含 jar 与 `lib/`）。**未做任何运行时验证**。 |
+
+## CI 记录
+
+| run | head | 结论 | 说明 |
+| --- | --- | --- | --- |
+| [#41376357990](https://github.com/FaHits/UnipusHelperPro/actions/runs/41376357990) | `80fe070` | failure | 首次推送。门禁拦下了本账本里复制的那段协议常量字样（`ImplementationStatus.md:49`），`verify-baseline.sh` 退出码 1，artifact 未上传。 |
+| [#41376445981](https://github.com/FaHits/UnipusHelperPro/actions/runs/41376445981) | `5e8a19f` | success | 删掉常量字样后通过。job `build` 31 秒；`openjdk version "25.0.5"`；`Apache Maven 3.10.0`；jar 327068 字节；`target/lib` 16 文件 / 9522131 字节；artifact `unipus-jar` id `13111810515`。 |
 
 ## 本线自己新增的约定
 
@@ -43,6 +50,7 @@
 4. 上游 README 提到但不存在的 `run.bat` / `run.sh` 启动脚本没有补，也没有验证任何启动方式。
 5. CI 只在 `ubuntu-latest` 上验证编译与打包，Windows 行为未在 CI 覆盖。
 6. 网络相关功能（U校园接口、答案拉取、提交请求）完全未验证；上游协议可能早已失效。
+7. 构建产物不可复现：同一个提交在本机 JDK 25.0.4 上打出的 jar 是 327081 字节，CI 的 JDK 25.0.5 上是 327068 字节（差 13 字节）。本任务不声明可复现构建，也不做字节级对比。
 
 ## 发现的问题（只记录，未修改）
 
