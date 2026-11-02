@@ -46,7 +46,7 @@
 
 ## 发现的问题（只记录，未修改）
 
-1. `src/main/java/org/unipus/util/WebUtils.java:30` 硬编码常量 `SECRET = "a824b379f126b8b7aa5e33dee83fb0a05aa7462c"`。这是上游客户端协议签名常量，不是用户凭据，因此 `scripts/verify-baseline.sh` 的凭据扫描只覆盖入库的非源码文本文件，不把源码常量算作失败项。是否处理由规划方决定。
+1. `src/main/java/org/unipus/util/WebUtils.java:30` 硬编码协议签名常量 `SECRET`（40 位十六进制字符串，本文不复制其值，避免被自己的凭据门禁拦住）。它是上游客户端协议常量，不是用户凭据，因此 `scripts/verify-baseline.sh` 的凭据扫描只覆盖入库的非源码文本文件，不把源码常量算作失败项。是否处理由规划方决定。
 2. `README.md` 的 Releases 链接指向上游 `Duster-Cule/UnipusHelperPro/releases/latest`，本 fork 发布后应改指本仓库。
 3. `README.md` 让用户运行 `run.bat` / `run.sh`，但仓库里没有这两个文件，也没有打 zip 的脚本。
 4. `README.md` 里 `doc/CheckCurrentTask.md` 的链接指向 `Duster-Cule/UnipusHelper`（少了一个 `Pro`）。
